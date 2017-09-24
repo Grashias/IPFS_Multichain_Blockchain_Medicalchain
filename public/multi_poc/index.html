@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Forms</title>
+    <!-- Bootstrap Core CSS -->
+    <link href="http://10.0.0.7:8337/multi_poc/css/bootstrap.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="http://10.0.0.7:8337/multi_poc/css/business-casual.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    <div class="container">
+
+        <div class="row">
+            <div class="box">
+
+                <div class="col-md-12">
+                    <!-- Nav tabs -->
+                    <div class="card">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#menu1" id="query_clk" aria-controls="menu1" role="tab" data-toggle="tab"> <span>Create</span></a></li>
+                            <li role="presentation"><a href="#menu2" id="create_clk" aria-controls="menu2" role="tab" data-toggle="tab"><span>Query</span></a></li>
+                            <!-- <li role="presentation"><a href="#menu3" id="update_clk" aria-controls="menu3" role="tab" data-toggle="tab"><span>Update</span></a></li>
+                            <li role="presentation"><a href="#menu4" id="delete_clk" aria-controls="menu4" role="tab" data-toggle="tab">  <span>Delete</span></a></li> -->
+                        </ul>
+						
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="menu1">
+                                <form role="form">
+                                    <div class="row">
+                                        <div class="form-group col-lg-1">
+                                        </div>
+                                        <div class="form-group col-lg-4">
+                                            <label>Key</label>
+                                            <input class="form-control" id="create_key" type="text" placeholder="Unique Identifier">
+                                        </div>
+                                        <div class="form-group col-lg-7">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-lg-1">
+                                        </div>
+                                        <div class="form-group col-lg-10">
+                                            <form id="frmMain" name="frmMain">
+												<input type="file" id="myFile" name="myFile"/>
+											</form>
+                                        </div>
+                                        <div class="form-group col-lg-1">
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-sm-4 col-sm-offset-4">
+                                                    <input type="submit" id="create_submit" tabindex="4" class="form-control btn btn-primary" value="Create Record">
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="menu2">
+								<form role="form">
+                                    <div class="row">
+                                        <div class="form-group col-lg-1">
+                                        </div>
+                                        <div class="form-group col-lg-4">
+                                            <label>Key</label>
+                                            <input class="form-control" id="update_key" type="text" placeholder="Unique Identifier">
+                                        </div>
+
+                                        <div class="form-group col-lg-2" style="margin-top: 2% !important;">
+                                            <input type="submit" id="update_query" tabindex="4" class="form-control btn btn-primary" value="Query">
+                                        </div>
+
+                                    </div>
+                                    <div class="row" id="dyn_tb" style="display:none">
+                                        <!--   <div class="form-group col-lg-6">
+                                              <label>Field 1</label>
+                                              <input class="form-control" type="text" placeholder="Sample">
+                                          </div> -->
+                                        <div class="form-group col-lg-1">
+                                        </div>
+                                        <div class="form-group col-lg-10">
+                                            <textarea class="form-control" id="query_tab_val" rows="15" style="display:none;"></textarea>
+											  <div class="table-responsive striped panel-body">
+											<table class="table" id="tblid">
+											<thead class="thead-inverse">
+											<tr>
+											<th>key</th>
+											<th>IPFS Hash</th>
+											<th>View</th>
+											<th>Download</th>
+											</tr>
+											</thead>
+											<tbody id="tbltbody">
+											</tbody>
+											</table>
+                                        </div>
+										</div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+							<div class="lbl" style="text-align:center;">
+								<label id="label_common"></label>
+							<div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+    <!-- jQuery -->
+    <script src="http://10.0.0.7:8337/multi_poc/js/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="http://10.0.0.7:8337/multi_poc/js/bootstrap.min.js"></script>
+<script>
+	
+$(document).ready(function(){
+var streamname = "mine";
+function showFileName() {
+   var fil = document.getElementById("myFile");
+   var fileName = $("#myFile").val().split('/').pop().split('\\').pop();
+   console.log(fileName);
+   send(fileName);
+}
+
+function send(pat){ 
+	var filepath= "C:/proj_node/ipfs_multi/ipfs_multichain_medicalchain/New_folder/"+pat+"";
+    $.post("http://10.0.0.7:3000/send",{filepath:filepath},function(data){
+		console.log(data);
+		datas(data[0].hash,data[0].path);
+	});
+}
+
+function datas(hash,path){
+	if(hash != ""){
+		$("#label_common").text("");
+		var key = $("#create_key").val();
+		var flag = "create";
+		$.post('http://10.0.0.7:8337/addkeyvalue',{streamname: streamname, data:hash, key:key}, function(d) {
+			console.log(d);
+			$("#label_common").text(d);
+		});
+	}
+}
+
+
+	$("#create_clk").click(function(){
+	$("#label_common").text("");
+	$.post('http://10.0.0.7:8337/streamitems',{streamname: streamname}, function(d) {
+		console.log(d);
+		//$("#query_tab_val").val(JSON.stringify(d));
+		$("#tbltbody").html("");
+		var tml="";
+		for(i=0;i<d.length;i++)
+		{
+		var key = d[i].key;
+		var data = d[i].data;
+		var formdata = convertFromHex(data);
+			if(tml=="")
+			{
+			tml="<tr><td>" + key + "</td><td>" + formdata + "</td><td><div><a href='http://10.0.0.7:8081/ipfs/" + formdata + "' target='_blank' class='button form-control btn btn-primary'>View<a/></td>" + "<td><a href='http://10.0.0.7:8081/ipfs/" + formdata + "' target='_blank' download class='button form-control btn btn-primary'>Download<a/></div></td></tr>";
+			}
+			else{
+			tml=tml+"<tr><td>" + key + "</td><td>" + formdata + "</td><td><div><a href='http://10.0.0.7:8081/ipfs/" + formdata + "' target='_blank' class='button form-control btn btn-primary'>View<a/></td>" + "<td><a href='http://10.0.0.7:8081/ipfs/" + formdata + "' target='_blank' download class='button form-control btn btn-primary'>Download<a/></div></td></tr>";
+			}																
+		}
+		$("#tbltbody").html(tml);
+		$("#dyn_tb").show();
+		$("#label_common").text("Latest records retrieved from Multichain");
+	});
+	});
+	
+	$("#update_clk, #create_clk, #delete_clk").click(function(){
+		$("#label_common").text("");
+	});
+	
+
+	/*$("#query_clk").click(function(){
+		$("#label_common").text("");
+		$.post('http://10.0.0.7:8337/streamitems',{streamname: streamname}, function(d) {
+			console.log(d);
+			$("#query_tab_val").val(JSON.stringify(d));
+			$("#label_common").text("Latest records retrieved from Multichain");
+		});
+		//return false;
+	});*/
+	
+	$("#update_query").click(function(){
+		$("#label_common").text("");
+		var key = $("#update_key").val();
+		$.post('http://10.0.0.7:8337/streamkeyitems',{streamname: streamname, key:key}, function(d) {
+		//console.log(d);
+		//$("#query_tab_val").val(JSON.stringify(d));
+		$("#tbltbody").html("");
+		var ds=[];
+		var tml="";
+		ds=d.split("||");
+		for(i=0;i<ds.length;i++)
+		{
+			if(tml=="")
+			{
+			tml="<tr><td>" + key + "</td><td>" + ds[i] + "</td><td><div><a href='http://10.0.0.7:8081/ipfs/" + ds[i] + "' target='_blank' class='button form-control btn btn-primary'>View<a/></td>" + "<td><a href='http://10.0.0.7:8081/ipfs/" + ds[i] + "' target='_blank' download class='button form-control btn btn-primary'>Download<a/></div></td></tr>";
+			}
+			else{
+			tml=tml+"<tr><td>" + key + "</td><td>" + ds[i] + "</td><td><div><a href='http://10.0.0.7:8081/ipfs/" + ds[i] + "' target='_blank' class='button form-control btn btn-primary'>View<a/></td>" + "<td><a href='http://10.0.0.7:8081/ipfs/" + ds[i] + "' target='_blank' download class='button form-control btn btn-primary'>Download<a/></div></td></tr>";
+			}																
+		}
+		$("#tbltbody").html(tml);
+		$("#dyn_tb").show();
+		$("#label_common").text("Records retrieved from Multichain");
+		});
+		return false;
+	});
+	
+	
+	/*$("#delete_query").click(function(){
+		$("#label_common").text("");
+		var key = $("#delete_key").val();
+		$.post('http://10.0.0.7:8337/streamkeyitems',{streamname: streamname, key:key}, function(d) {
+			console.log(d);
+			$("#delete_data_val").val(d);
+			if(d == " No records found."){
+			$("#delete_submit").attr("disabled", true);
+			} 
+			else{
+			$("#delete_submit").attr("disabled", false);
+			}
+		});
+		return false;
+	});*/
+	
+	$("#create_submit").click(function(){
+		showFileName();
+		return false;
+	});
+	
+	/*$("#update_submit").click(function(){
+		$("#label_common").text("");
+		var key = $("#update_key").val();
+		var data = $("#update_data_val").val();
+		var flag = "update";
+		$.post('http://10.0.0.7:8337/addkeyvalue',{streamname: streamname, data:data, key:key, flag:flag}, function(d) {
+			console.log(d);
+			$("#label_common").text(d);
+		});
+		return false;
+	});
+	
+	$("#delete_submit").click(function(){
+		$("#label_common").text("");
+		
+		var key = $("#delete_key").val();
+		var data = "";
+		var flag = "delete";
+		$.post('http://10.0.0.7:8337/addkeyvalue',{streamname: streamname, data:data, key:key, flag:flag}, function(d) {
+			console.log(d);
+			$("#label_common").text(d);
+		});
+		return false;
+	});*/
+	function convertToHex(str1) {
+    var hex = '';
+    for(var i=0;i<str1.length;i++) {
+        hex += ''+str1.charCodeAt(i).toString(16);
+    }
+    return hex;
+}
+
+function convertFromHex(hex) {
+    var hex = hex.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
+});
+	
+</script>
+	
+</body>
+</html>
+
+
+
+<!--
+fs.readFile(output_filepath, 'utf-8', function(err, data) {
+    if (err) throw err;
+
+    var lines = data.trim().split('\n');
+    var lastLine = lines.slice(-1)[0];
+    var ds=[];
+	var ds1;
+	var dd1=[];
+    //var fields = lastLine.split(',');
+    //var audioFile = fields.slice(-1)[0].replace('file:\\\\', '');
+    ds=lastLine.split(":");
+	ds1=ds[3];
+	dd1=ds1.split(",");
+    console.log(dd1[0]);
+	
+});
+ -->
