@@ -296,24 +296,3 @@ function convertFromHex(hex) {
 	
 </body>
 </html>
-
-
-
-<!--
-fs.readFile(output_filepath, 'utf-8', function(err, data) {
-    if (err) throw err;
-
-    var lines = data.trim().split('\n');
-    var lastLine = lines.slice(-1)[0];
-    var ds=[];
-	var ds1;
-	var dd1=[];
-    //var fields = lastLine.split(',');
-    //var audioFile = fields.slice(-1)[0].replace('file:\\\\', '');
-    ds=lastLine.split(":");
-	ds1=ds[3];
-	dd1=ds1.split(",");
-    console.log(dd1[0]);
-	
-});
- -->
